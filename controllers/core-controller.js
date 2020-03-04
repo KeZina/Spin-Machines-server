@@ -1,7 +1,12 @@
 class CoreController {
-    static spin() {        
-        const spinResult = this.getSpinResult();        
+
+    static getArray() {
+        return [1, 3, 7, 2, 3, 5, 6, 3, 4, 7, 2, 71, 9, 9, 4];
     }
+
+    // static spin() {        
+    //     const spinResult = this.getSpinResult();        
+    // }
 
     static getQuests() {
         return [
@@ -45,10 +50,35 @@ class CoreController {
     }
 
     static getSpinResult() {
-        return {
-            matrix: [1, 3, 7, 2, 3, 5, 6, 3, 4, 7, 2, 71, 9, 9, 4],
-            spentMoney: 1000,
+        let arr = this.getArray();
+        let j = 0;
+        let temp = [];
+
+        for(let i = arr.length - 1; i > 0; i--) {
+            j = Math.floor(Math.random()*(i + 1));
+            temp = arr[j];
+            arr[j] = arr[i];
+            arr[i] = temp;
         }
+    
+        j = 0;
+        let newArr = new Array(arr.length / 5).fill([]);
+
+        for(let i = 0; i < arr.length; i++) {
+            if((i + 1) % 5 !== 0) {
+                newArr[j] = [...newArr[j], arr[i]];
+            } else if((i + 1) % 5 === 0) {
+                newArr[j] = [...newArr[j], arr[i]];
+                j++;
+            }
+        }
+
+        return newArr;
+
+        // return {
+        //     matrix: [1, 3, 7, 2, 3, 5, 6, 3, 4, 7, 2, 71, 9, 9, 4],
+        //     spentMoney: 1000,
+        // }
     }
 }
 

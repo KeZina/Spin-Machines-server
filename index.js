@@ -19,10 +19,11 @@ start();
 
 
 io.on('connection', socket => {
-    cl(chalk.bgGreen('+1 socket :)'))
+    cl(chalk.bgGreen.black('+1 socket :)'))
+    console.log(CoreController.getSpinResult())
 
     socket.emit('quests', {
-        type: 'goal',
+        type: 'progress',
         payload: CoreController.getQuests()
     })
 
@@ -32,6 +33,6 @@ io.on('connection', socket => {
     })
 
     socket.on('disconnect', socket => {
-        cl(chalk.bgRed('-1 socket :('))
+        cl(chalk.bgRed.black('-1 socket :('))
     })
 })
