@@ -1,56 +1,50 @@
-class CoreController {
+const chalk = require('chalk');
 
-    static getArray() {
-        return [1, 3, 7, 2, 3, 5, 6, 3, 4, 7, 2, 71, 9, 9, 4];
-    }
+const CoreController = {
+    array: [1, 3, 7, 2, 3, 5, 6, 3, 4, 7, 2, 71, 9, 9, 4],
+    matrix: null,
 
-    // static spin() {        
-    //     const spinResult = this.getSpinResult();        
-    // }
+    quests: [
+        {
+            id: 1,
+            userId: 1,
+            questType: 'do_spin',
+            questValue: 12,
+            userQuestValue: 0,
+            isCompleted: false,
+            dateCompleted: null
+        },
+        {
+            id: 1,
+            userId: 1,
+            questType: 'spent_money',
+            questValue: 2000,
+            userQuestValue: 0,
+            isCompleted: false,
+            dateCompleted: null
+        },
+        {
+            id: 1,
+            userId: 1,
+            questType: 'combo_row',
+            questValue: 2,
+            userQuestValue: 0,
+            isCompleted: false,
+            dateCompleted: null
+        },
+        {
+            id: 1,
+            userId: 1,
+            questType: 'get_symbol',
+            questValue: 1,
+            userQuestValue: 0,
+            isCompleted: false,
+            dateCompleted: null
+        }
+    ],
 
-    static getQuests() {
-        return [
-            {
-                id: 1,
-                userId: 1,
-                questType: 'do_spin',
-                questValue: 12,
-                userQuestValue: 0,
-                isCompleted: false,
-                dateCompleted: null
-            },
-            {
-                id: 1,
-                userId: 1,
-                questType: 'spent_money',
-                questValue: 2000,
-                userQuestValue: 0,
-                isCompleted: false,
-                dateCompleted: null
-            },
-            {
-                id: 1,
-                userId: 1,
-                questType: 'combo_row',
-                questValue: 2,
-                userQuestValue: 0,
-                isCompleted: false,
-                dateCompleted: null
-            },
-            {
-                id: 1,
-                userId: 1,
-                questType: 'get_symbol',
-                questValue: 1,
-                userQuestValue: 0,
-                isCompleted: false,
-                dateCompleted: null
-            }
-        ]
-    }
-
-    static getSpinResult() {
-        let arr = this.getArray();
+    shaffleMatrix() {
+        let arr = this.array;
         let j = 0;
         let temp = [];
 
@@ -62,24 +56,86 @@ class CoreController {
         }
     
         j = 0;
-        let newArr = new Array(arr.length / 5).fill([]);
+        let matrix = new Array(arr.length / 5).fill([]);
 
         for(let i = 0; i < arr.length; i++) {
             if((i + 1) % 5 !== 0) {
-                newArr[j] = [...newArr[j], arr[i]];
+                matrix[j] = [...matrix[j], arr[i]];
             } else if((i + 1) % 5 === 0) {
-                newArr[j] = [...newArr[j], arr[i]];
+                matrix[j] = [...matrix[j], arr[i]];
                 j++;
             }
         }
 
-        return newArr;
+        this.matrix = matrix;
+    },
 
-        // return {
-        //     matrix: [1, 3, 7, 2, 3, 5, 6, 3, 4, 7, 2, 71, 9, 9, 4],
-        //     spentMoney: 1000,
-        // }
+    progress() {
+        this.shaffleMatrix();
+        const matrix = this.matrix;
+
+        const quests = this.quests.map(quest => {
+            if(!quest.isCompleted) {
+                if(quest.questType === 'do_spin') {
+                    let userVal = quest.userQuestValue + 1;
+
+                    if(userVal === quest.questValue) {
+                        return ({
+                            ...quest,
+                            userQuestValue: userVal,
+                            isCompleted: true
+                        });
+                    } else return({
+                        ...quest, 
+                        userQuestValue: userVal
+                    })
+                } else if(quest.questType === 'spent_money') {
+                    let userVal = quest.userQuestValue + 200;
+
+                    if(userVal === quest.questValue) {
+                        return ({
+                            ...quest,
+                            userQuestValue: userVal,
+                            isCompleted: true
+                        });
+                    } else return({
+                        ...quest, 
+                        userQuestValue: userVal
+                    })
+                } else if(quest.questType === 'combo_row') {
+                    const nextMatrix = matrix.filter((arr, index) => index !== 0);
+                    const prevMatrix = matrix.filter((arr, index, matrix) => index !== (matrix.length - 1));
+                    let userVal = quest.userQuestValue;
+
+                    nextMatrix.map((nextArr, mIndex) => {
+                        nextArr.map((num, aIndex) => {
+                            if(num === prevMatrix[mIndex][aIndex]) userVal++;
+                        })
+                    })
+
+                    if(userVal > 0) {
+                         if(userVal >= quest.questValue) {
+                            return ({
+                                ...quest,
+                                userQuestValue: 2,
+                                isCompleted: true
+                            })
+                        } else return ({
+                            ...quest,
+                            userQuestValue: userVal
+                        })
+                    }
+                } else if(quest.questType === 'get_symbol') {
+                    
+                }
+            }
+            return quest
+        })
+        this.quests = quests;
+        console.log(chalk.bgCyan.black('Matrix (spin result):'), this.matrix)
+        console.log(chalk.bgCyan.black('Quests (progress):'), this.quests);
     }
+
 }
 
 module.exports = CoreController;

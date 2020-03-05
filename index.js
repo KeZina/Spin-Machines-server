@@ -6,6 +6,31 @@ const CoreController = require('./controllers/core-controller');
 
 const cl = console.log;
 
+io.on('connection', socket => {
+    cl(chalk.bgGreen.black('+1 socket :)'));
+
+    socket.emit('quests', {
+        progress: {
+            quests: CoreController.quests,
+            matrix: CoreController.matrix
+        }
+    })
+
+    socket.on('getProgress', () => {
+        CoreController.progress();
+        socket.emit('quests', {
+            progress: {
+                quests: CoreController.quests,
+                matrix: CoreController.matrix
+            }
+        })
+    })
+
+    socket.on('disconnect', socket => {
+        cl(chalk.bgRed.black('-1 socket :('))
+    })
+})
+
 const start = () => {
     try {
         server.listen(3003);
@@ -16,23 +41,3 @@ const start = () => {
 }
 
 start();
-
-
-io.on('connection', socket => {
-    cl(chalk.bgGreen.black('+1 socket :)'))
-    console.log(CoreController.getSpinResult())
-
-    socket.emit('quests', {
-        type: 'progress',
-        payload: CoreController.getQuests()
-    })
-
-    socket.on('getMatrixAndProgress', () => {
-        socket.emit('matrix', []);
-        socket.emit('progress', [])
-    })
-
-    socket.on('disconnect', socket => {
-        cl(chalk.bgRed.black('-1 socket :('))
-    })
-})
