@@ -43,19 +43,23 @@ const CoreController = {
         }
     ],
 
-    shaffleMatrix() {
+    generateArray() {
+        let array = new Array(15).fill(null).map(() => {
+            let num = Math.floor((Math.random() * 1e1) + 1)
+            if(num === 10) {
+                let unique = Math.floor(((Math.random() * 2e4) / 10));
+                if(unique > 50 && unique < 100) num = unique;
+                else num = Math.floor((Math.random() * 1e1) + 1);
+            }
+            return num
+        })
+
+        this.array = array;
+    },
+
+    createMatrix() {
         let arr = this.array;
         let j = 0;
-        let temp = [];
-
-        for(let i = arr.length - 1; i > 0; i--) {
-            j = Math.floor(Math.random()*(i + 1));
-            temp = arr[j];
-            arr[j] = arr[i];
-            arr[i] = temp;
-        }
-    
-        j = 0;
         let matrix = new Array(arr.length / 5).fill([]);
 
         for(let i = 0; i < arr.length; i++) {
@@ -71,7 +75,8 @@ const CoreController = {
     },
 
     progress() {
-        this.shaffleMatrix();
+        this.generateArray();
+        this.createMatrix();
         const matrix = this.matrix;
 
         const quests = this.quests.map(quest => {
@@ -114,7 +119,7 @@ const CoreController = {
                     })
 
                     if(userVal > 0) {
-                         if(userVal >= quest.questValue) {
+                        if(userVal >= quest.questValue) {
                             return ({
                                 ...quest,
                                 userQuestValue: 2,
@@ -126,11 +131,24 @@ const CoreController = {
                         })
                     }
                 } else if(quest.questType === 'get_symbol') {
-                    
+                    let userVal = quest.userQuestValue;
+
+                    matrix.map(arr => {
+                        arr.map(num => {
+                            if(String(num).length === 2) userVal++;
+                        })
+                    })
+
+                    if(userVal > 0) return({
+                        ...quest,
+                        userQuestValue: 1,
+                        isCompleted: true
+                    })
                 }
             }
             return quest
         })
+
         this.quests = quests;
         console.log(chalk.bgCyan.black('Matrix (spin result):'), this.matrix)
         console.log(chalk.bgCyan.black('Quests (progress):'), this.quests);
